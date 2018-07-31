@@ -42,6 +42,7 @@
 
 html {
   font-family: sans-serif;
+  font-style: bold;
   line-height: 1.15;
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
@@ -172,8 +173,14 @@ figure {
   margin: 0 0 1rem; }
 
 img {
-  vertical-align: middle;
-  border-style: none; }
+  position: relative;
+  float: left;
+  width:  100px;
+  height: 100px;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
 
 svg:not(:root) {
   overflow: hidden; }

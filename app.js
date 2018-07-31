@@ -1,7 +1,7 @@
 var createError = require('http-errors');
 const express = require('express');
 var path = require('path');
-var cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 const expressValidator = require('express-validator');
 const logger = require('morgan');
 const chalk = require('chalk');
@@ -10,10 +10,12 @@ const MongoStore = require('connect-mongo')(session);
 const flash = require('express-flash');
 const bodyParser = require('body-parser');
 const sass = require('node-sass-middleware');
+// const passport = require('passport');
 const mongoose = require('mongoose');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var feedRouter = require('./routes/feed');
 
 const app = express();
 
@@ -21,7 +23,7 @@ const app = express();
  * Connect to MongoDB.
  */
  mongoose.connect('mongodb://zelmundo7:zelmundo7@ds255451.mlab.com:55451/brainswarm-db', {
-    useNewUrlParser: true 
+    useNewUrlParser: true
  });
  mongoose.Promise = global.Promise;
  const db = mongoose.connection
@@ -59,8 +61,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(expressValidator());
 
-/** session for express configuration **/
-
 app.use(session({
     secret: 'my-secret',
     resave: true,
@@ -72,16 +72,22 @@ app.use(session({
     })
 }));
 
+/** passport configuration **/
+// app.use(passport.initialize());
+// app.use(passport.session());
+
 /** flash configuration **/
 app.use(flash());
 
-/**routes setup **/
+/**routes **/
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/feed', feedRouter);
+
 
 // app.use((req, res, next) => {
-  // After successful login, redirect back to the intended page
+//   //After successful login, redirect back to the intended page
 //   if (!req.user &&
 //     req.path !== '/login' &&
 //     req.path !== '/signup' &&
@@ -101,6 +107,13 @@ app.use('/users', usersRouter);
 const homeController = require('./controllers/home');
 const userController = require('./controllers/user');
 const contactController = require('./controllers/contact');
+const feedController = require('./controllers/feed');
+
+
+/**
+ * API keys and Passport configuration.
+ */
+// const passportConfig = require('./config/passport');
 
 /**static file paths **/
 app.use('/javascripts/lib', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/js'), { maxAge: 31557600000 }));
@@ -109,10 +122,16 @@ app.use('/javascripts/lib', express.static(path.join(__dirname, 'node_modules/po
 app.use('/webfonts', express.static(path.join(__dirname, 'node_modules/@fortawesome/fontawesome-free/webfonts'), { maxAge: 31557600000 }));
 
 //primary app routes.
+app.get('/login', userController.getLogin);
+app.post('/login', userController.postLogin);
+app.get('/logout', userController.logout);
 app.get('/signup', userController.getSignup);
 app.post('/signup', userController.postSignup);
+// app.get('/account', passportConfig.isAuthenticated, userController.getAccount);
 // app.post('/account/profile', passportConfig.isAuthenticated, userController.postUpdateProfile);
 // app.post('/account/password', passportConfig.isAuthenticated, userController.postUpdatePassword);
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
